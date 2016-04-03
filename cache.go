@@ -22,8 +22,8 @@ func (c *Store) New() *Store {
 func (c *Store) Get(k string) interface{} {
 	c.lck.RLock()
 	defer c.lck.RUnlock()
-	v, ok := c.cfg[k]
 
+	v, ok := c.cfg[k]
 	if !ok {
 		return ""
 	}
@@ -32,13 +32,26 @@ func (c *Store) Get(k string) interface{} {
 func (c *Store) Set(k string, v interface{}) error {
 	c.lck.Lock()
 	defer c.lck.Unlock()
+
 	c.cfg[k] = v
 	return nil
 }
 func (c *Store) Delete(k string) error {
 	c.lck.Lock()
-
 	defer c.lck.Unlock()
+
 	delete(c.cfg, k)
 	return nil
+}
+func (c *Store) GetStore() map[string]interface{} {
+	c.lck.RLock()
+	defer c.lck.RUnlock()
+
+	v := c.cfg
+	return v
+}
+func (c *Store) DeleteStore() {
+	for k := range c.cfg {
+		c.Delete(k)
+	}
 }
